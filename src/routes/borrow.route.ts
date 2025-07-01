@@ -2,7 +2,7 @@ import express from 'express';
 import {
   borrowBook,
   borrowedBooksSummary,
-} from './controllers/borrow.controller';
+} from '../controllers/borrow.controller';
 
 const router = express.Router();
 

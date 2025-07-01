@@ -1,22 +1,31 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose'; // <-- import mongoose to use ObjectId.isValid
-import Book from '../../models/book.model';
+import mongoose from 'mongoose';
+import Book from '../models/book.model'; // Adjust path as per your structure
 
-// Utility to send consistent responses
-const sendResponse = (res: Response, status: number, success: boolean, message: string, data: any = null) => {
+// ✅ Reusable JSON response helper
+const sendResponse = (
+  res: Response,
+  status: number,
+  success: boolean,
+  message: string,
+  data: any = null
+) => {
   res.status(status).json({ success, message, data });
 };
 
+// ✅ Create a new book
 export const createBook = async (req: Request, res: Response) => {
   try {
     const book = new Book(req.body);
     await book.save();
     sendResponse(res, 201, true, 'Book created successfully', book);
   } catch (error: any) {
-    sendResponse(res, 400, false, 'Validation failed', error);
+    console.error('Error creating book:', error);
+    sendResponse(res, 400, false, 'Validation failed', error.message);
   }
 };
 
+// ✅ Get all books (with optional filter, sort, and limit)
 export const getAllBooks = async (req: Request, res: Response) => {
   try {
     const { filter, sortBy = 'createdAt', sort = 'asc', limit = '10' } = req.query;
@@ -30,27 +39,33 @@ export const getAllBooks = async (req: Request, res: Response) => {
 
     sendResponse(res, 200, true, 'Books retrieved successfully', books);
   } catch (error: any) {
-    sendResponse(res, 500, false, 'Server error', error);
+    console.error('Error fetching books:', error);
+    sendResponse(res, 500, false, 'Server error', error.message);
   }
 };
 
+// ✅ Get a single book by ID
 export const getBookById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    // Check if bookId is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return sendResponse(res, 400, false, 'Invalid book ID');
     }
 
     const book = await Book.findById(id);
-    if (!book) return sendResponse(res, 404, false, 'Book not found');
+    if (!book) {
+      return sendResponse(res, 404, false, 'Book not found');
+    }
+
     sendResponse(res, 200, true, 'Book retrieved successfully', book);
   } catch (error: any) {
-    sendResponse(res, 400, false, 'Invalid book ID', error);
+    console.error('Error fetching book by ID:', error);
+    sendResponse(res, 500, false, 'Server error', error.message);
   }
 };
 
+// ✅ Update a book by ID
 export const updateBook = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -59,14 +74,23 @@ export const updateBook = async (req: Request, res: Response) => {
       return sendResponse(res, 400, false, 'Invalid book ID');
     }
 
-    const book = await Book.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
-    if (!book) return sendResponse(res, 404, false, 'Book not found');
-    sendResponse(res, 200, true, 'Book updated successfully', book);
+    const updatedBook = await Book.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedBook) {
+      return sendResponse(res, 404, false, 'Book not found');
+    }
+
+    sendResponse(res, 200, true, 'Book updated successfully', updatedBook);
   } catch (error: any) {
-    sendResponse(res, 400, false, 'Update failed', error);
+    console.error('Error updating book:', error);
+    sendResponse(res, 400, false, 'Update failed', error.message);
   }
 };
 
+// ✅ Delete a book by ID
 export const deleteBook = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -75,10 +99,14 @@ export const deleteBook = async (req: Request, res: Response) => {
       return sendResponse(res, 400, false, 'Invalid book ID');
     }
 
-    const book = await Book.findByIdAndDelete(id);
-    if (!book) return sendResponse(res, 404, false, 'Book not found');
-    sendResponse(res, 200, true, 'Book deleted successfully', null);
+    const deletedBook = await Book.findByIdAndDelete(id);
+    if (!deletedBook) {
+      return sendResponse(res, 404, false, 'Book not found');
+    }
+
+    sendResponse(res, 200, true, 'Book deleted successfully');
   } catch (error: any) {
-    sendResponse(res, 400, false, 'Delete failed', error);
+    console.error('Error deleting book:', error);
+    sendResponse(res, 400, false, 'Delete failed', error.message);
   }
 };
