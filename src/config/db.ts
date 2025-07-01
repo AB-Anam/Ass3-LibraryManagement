@@ -1,5 +1,11 @@
 import mongoose from 'mongoose';
 
+const MONGO_URI = process.env.MONGO_URI!;
+
+if (!MONGO_URI) {
+  throw new Error('Please define the MONGO_URI environment variable inside .env');
+}
+
 let cached = (global as any).mongoose;
 
 if (!cached) {
@@ -7,24 +13,11 @@ if (!cached) {
 }
 
 async function connectDB() {
-  if (cached.conn) {
-    return cached.conn;
-  }
-
-  const MONGO_URI = process.env.MONGO_URI;
-
-  if (!MONGO_URI) {
-    throw new Error('MONGO_URI is not defined in environment variables.');
-  }
+  if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    const opts = {
-      bufferCommands: false,
-    };
-
-    cached.promise = mongoose.connect(MONGO_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+    // Removed bufferCommands: false here
+    cached.promise = mongoose.connect(MONGO_URI).then((mongoose) => mongoose);
   }
 
   cached.conn = await cached.promise;
