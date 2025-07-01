@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Borrow from '../models/borrow.model';  // Adjust path as needed
 import Book from '../models/book.model';
+import connectDB from '../config/db'; // <-- Added
 
 const sendResponse = (
   res: Response,
@@ -14,6 +15,8 @@ const sendResponse = (
 
 export const borrowBook = async (req: Request, res: Response) => {
   try {
+    await connectDB(); // Ensure DB connected before query
+
     const { book: bookId, quantity, dueDate } = req.body;
 
     const book = await Book.findById(bookId);
@@ -43,6 +46,8 @@ export const borrowBook = async (req: Request, res: Response) => {
 
 export const borrowedBooksSummary = async (req: Request, res: Response) => {
   try {
+    await connectDB(); // Ensure DB connected before aggregation
+
     const summary = await Borrow.aggregate([
       {
         $group: {

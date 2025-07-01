@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import Book from '../models/book.model'; // Adjust path as per your structure
+import Book from '../models/book.model';
+import connectDB from '../config/db'; // ✅ Added
 
 // ✅ Reusable JSON response helper
 const sendResponse = (
@@ -16,6 +17,7 @@ const sendResponse = (
 // ✅ Create a new book
 export const createBook = async (req: Request, res: Response) => {
   try {
+    await connectDB(); // ✅ Ensures DB is connected
     const book = new Book(req.body);
     await book.save();
     sendResponse(res, 201, true, 'Book created successfully', book);
@@ -25,9 +27,10 @@ export const createBook = async (req: Request, res: Response) => {
   }
 };
 
-// ✅ Get all books (with optional filter, sort, and limit)
+// ✅ Get all books
 export const getAllBooks = async (req: Request, res: Response) => {
   try {
+    await connectDB(); // ✅ Ensures DB is connected
     const { filter, sortBy = 'createdAt', sort = 'asc', limit = '10' } = req.query;
 
     const query: any = {};
@@ -47,6 +50,7 @@ export const getAllBooks = async (req: Request, res: Response) => {
 // ✅ Get a single book by ID
 export const getBookById = async (req: Request, res: Response) => {
   try {
+    await connectDB(); // ✅ Ensures DB is connected
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -68,6 +72,7 @@ export const getBookById = async (req: Request, res: Response) => {
 // ✅ Update a book by ID
 export const updateBook = async (req: Request, res: Response) => {
   try {
+    await connectDB(); // ✅ Ensures DB is connected
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -93,6 +98,7 @@ export const updateBook = async (req: Request, res: Response) => {
 // ✅ Delete a book by ID
 export const deleteBook = async (req: Request, res: Response) => {
   try {
+    await connectDB(); // ✅ Ensures DB is connected
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
