@@ -17,4 +17,8 @@ connectDB();
 app.use('/api/books', bookRoutes);     // /api/books/...
 app.use('/api/borrow', borrowRoutes);  // /api/borrow/...
 
+app.get('/', (req, res) => {
+  res.send('Library Management API is running');
+});
+
 export default app;
