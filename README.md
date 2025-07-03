@@ -1,5 +1,5 @@
 📚 Library Management System – Backend API
-A Node.js + Express.js powered RESTful API for managing a simple library system. This application allows administrators to manage books, track borrow activities, monitor availability, and generate summaries through a clean and scalable backend. MongoDB is used as the database with Mongoose for modeling.
+A Node.js + Express.js powered RESTful API for managing a simple library system. This application allows administrators to manage books, track borrow activities, monitor availability, and generate summaries through a clean and scalable backend. MongoDB is used as the database with Mongoose for modeling. 'npm run dev'
 
 🚀 Features
 ✅ Add, update, delete, and view books
