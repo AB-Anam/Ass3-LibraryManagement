@@ -1,3 +1,4 @@
+//book.controller.ts
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Book from '../models/book.model';
@@ -15,17 +16,29 @@ const sendResponse = (
 };
 
 // ✅ Create a new book
+// ✅ Create a new book
 export const createBook = async (req: Request, res: Response) => {
   try {
-    await connectDB(); // ✅ Ensures DB is connected
+    await connectDB(); // ensure DB connection
+
     const book = new Book(req.body);
     await book.save();
-    sendResponse(res, 201, true, 'Book created successfully', book);
+
+    sendResponse(res, 201, true, "Book created successfully", book);
   } catch (error: any) {
-    console.error('Error creating book:', error);
-    sendResponse(res, 400, false, 'Validation failed', error.message);
+    // ✅ Only log concise info to keep backend clean
+    console.error("Error creating book:", error.message);
+
+    // ✅ Handle duplicate ISBN error (E11000)
+    if (error.code === 11000 && error.keyPattern?.isbn) {
+      return sendResponse(res, 400, false, "Duplicate! A book with this ISBN already exists.");
+    }
+
+    // ✅ Handle other errors gracefully
+    return sendResponse(res, 400, false, "Validation failed", error.message);
   }
 };
+
 
 // ✅ Get all books
 export const getAllBooks = async (req: Request, res: Response) => {
